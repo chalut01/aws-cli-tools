@@ -44,15 +44,28 @@ status(){
     exit 0
 }
 stop(){
-    #echo "Stop $name : $InstanceId"
-    cmd=$(aws ec2 stop-instances --no-cli-pager --instance-ids $InstanceId | jq .StoppingInstances[].CurrentState.Name | sed 's/"//g')
-    echo "Stop $name : $InstanceId : State : $cmd "
+    c=$(status)
+    checkStatus=$(echo $c | grep running | wc -l )
+    if [ $checkStatus == 1 ]
+    then
+        cmd=$(aws ec2 stop-instances --no-cli-pager --instance-ids $InstanceId | jq .StoppingInstances[].CurrentState.Name | sed 's/"//g')
+        echo "Stop $name : $InstanceId : State : $cmd "
+        #echo "stop"
+    else
+        echo -n "Name $name : $InstanceId : State : "; ${RED}; echo -n "Already Stopped "; ${BLACK}; echo ""
+    fi
     
 }
 start(){
-    #echo "Stop $name : $InstanceId"
-    cmd=$(aws ec2 start-instances --no-cli-pager --instance-ids $InstanceId | jq .StartingInstances[].CurrentState.Name | sed 's/"//g')
-    echo "Stop $name : $InstanceId : State : $cmd "
+    c=$(status)
+    checkStatus=$(echo $c | grep running | wc -l )
+    if [ $checkStatus == 1 ]
+    then
+        echo -n "Name $name : $InstanceId : State : "; ${GREEN}; echo -n "Already Start "; ${BLACK}; echo ""
+    else
+        cmd=$(aws ec2 start-instances --no-cli-pager --instance-ids $InstanceId | jq .StartingInstances[].CurrentState.Name | sed 's/"//g')
+        echo "Name $name : $InstanceId : State : $cmd "
+    fi
     
 }
 
