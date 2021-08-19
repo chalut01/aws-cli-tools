@@ -7,6 +7,7 @@ BLACK='tput sgr0'
 name=""
 InstanceId=""
 InstanceStatus=""
+ts=$(date "+%Y-%b-%d %H:%M:%S")
 
 banner(){
     echo ""
@@ -38,8 +39,10 @@ status(){
     if [[ $detail == 'running' ]]
     then
         echo -n "Name : $name = ";${GREEN}; echo -n $detail ; ${BLACK}; echo ""
+        echo "$ts - Name : $name = Running " >> /var/log/aws.log
     else
         echo -n "Name : $name = ";${RED}; echo -n $detail ; ${BLACK}; echo ""
+        echo "$ts - Name : $name = Stopped " >> /var/log/aws.log
     fi
     exit 0
 }
@@ -50,8 +53,10 @@ stop(){
     then
         cmd=$(aws ec2 stop-instances --no-cli-pager --instance-ids $InstanceId | jq .StoppingInstances[].CurrentState.Name | sed 's/"//g')
         echo "Stop $name : $InstanceId : State : $cmd "
+        echo "$ts - Stop $name : $InstanceId : State : $cmd " >> /var/log/aws.log
     else
         echo -n "Name $name : $InstanceId : State : "; ${RED}; echo -n "Already Stopped "; ${BLACK}; echo ""
+        echo "$ts - Name $name : $InstanceId : State : Already Stopped " >> /var/log/aws.log
     fi
     
 }
@@ -61,9 +66,11 @@ start(){
     if [ $checkStatus == 1 ]
     then
         echo -n "Name $name : $InstanceId : State : "; ${GREEN}; echo -n "Already Start "; ${BLACK}; echo ""
+        echo -n "$ts - Name $name : $InstanceId : State : Already Start " >> /var/log/aws.log
     else
         cmd=$(aws ec2 start-instances --no-cli-pager --instance-ids $InstanceId | jq .StartingInstances[].CurrentState.Name | sed 's/"//g')
         echo "Name $name : $InstanceId : State : $cmd "
+        echo "$ts - Name $name : $InstanceId : State : $cmd " >> /var/log/aws.log
     fi
     
 }
@@ -77,12 +84,12 @@ case $1 in
     stop)
         check "$2"
         set "$2"
-        stop
+        stop 
     ;;
     start)
         check "$2"
         set "$2"
-        start
+        start 
     ;;
     config)
         echo "---Config---"
