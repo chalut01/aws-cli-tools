@@ -1,4 +1,5 @@
 #!/bin/bash
+export HOME=/root
 
 RED='tput setaf 1'
 GREEN='tput setaf 2'
@@ -55,8 +56,8 @@ stop(){
         echo "Stop $name : $InstanceId : State : $cmd "
         echo "$ts - Stop $name : $InstanceId : State : $cmd " >> /var/log/aws.log
     else
-        echo -n "Name $name : $InstanceId : State : "; ${RED}; echo -n "Already Stopped "; ${BLACK}; echo ""
-        echo "$ts - Name $name : $InstanceId : State : Already Stopped " >> /var/log/aws.log
+        echo -n "Stop $name : $InstanceId : State : "; ${RED}; echo -n "Already Stopped "; ${BLACK}; echo ""
+        echo "$ts - Stop $name : $InstanceId : State : Already Stopped " >> /var/log/aws.log
     fi
     
 }
@@ -65,12 +66,12 @@ start(){
     checkStatus=$(echo $c | grep running | wc -l )
     if [ $checkStatus == 1 ]
     then
-        echo -n "Name $name : $InstanceId : State : "; ${GREEN}; echo -n "Already Start "; ${BLACK}; echo ""
-        echo -n "$ts - Name $name : $InstanceId : State : Already Start " >> /var/log/aws.log
+        echo -n "Start $name : $InstanceId : State : "; ${GREEN}; echo -n "Already Start "; ${BLACK}; echo ""
+        echo "$ts - Start $name : $InstanceId : State : Already Start " >> /var/log/aws.log
     else
         cmd=$(aws ec2 start-instances --no-cli-pager --instance-ids $InstanceId | jq .StartingInstances[].CurrentState.Name | sed 's/"//g')
-        echo "Name $name : $InstanceId : State : $cmd "
-        echo "$ts - Name $name : $InstanceId : State : $cmd " >> /var/log/aws.log
+        echo "Start $name : $InstanceId : State : $cmd "
+        echo "$ts - Start $name : $InstanceId : State : $cmd " >> /var/log/aws.log
     fi
     
 }
@@ -99,9 +100,11 @@ case $1 in
     ;;
     *)
         banner
-        echo "config : Get Access key id, Secret key and Region from configuration <aws configure>."
-        echo "start <Name>"
-        echo "stop <Name>"
-        echo "status <Name>"
+        echo "Options:"
+        echo "        config        : Get Access key id, Secret key and Region from configuration <aws configure>."
+        echo "        start <Name>  : Start instance."
+        echo "        stop <Name>   : Stop instance."
+        echo "        status <Name> : Get instance status (running/Stopped)."
+        echo ""
     ;;
 esac
