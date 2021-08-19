@@ -50,7 +50,6 @@ stop(){
     then
         cmd=$(aws ec2 stop-instances --no-cli-pager --instance-ids $InstanceId | jq .StoppingInstances[].CurrentState.Name | sed 's/"//g')
         echo "Stop $name : $InstanceId : State : $cmd "
-        #echo "stop"
     else
         echo -n "Name $name : $InstanceId : State : "; ${RED}; echo -n "Already Stopped "; ${BLACK}; echo ""
     fi
@@ -73,7 +72,7 @@ case $1 in
     status)
         check "$2"
         set "$2"
-        status "$2"
+        status 
     ;;
     stop)
         check "$2"
@@ -93,8 +92,9 @@ case $1 in
     ;;
     *)
         banner
-        echo "start <name>"
-        echo "stop <name>"
-        echo "status <name>"
+        echo "config : Get Access key id, Secret key and Region from configuration <aws configure>."
+        echo "start <Name>"
+        echo "stop <Name>"
+        echo "status <Name>"
     ;;
 esac
